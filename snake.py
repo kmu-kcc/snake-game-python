@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import random
 from datetime import datetime
@@ -6,7 +8,7 @@ from datetime import timedelta
 pygame.init()
 
 # color constants setting.
-WHITE = (255, 255 ,255)
+WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
@@ -38,7 +40,7 @@ KEY_DIRECTION = {
 class Snake:
     # __init__ sets first position of snake.
     def __init__(self):
-        self.positions = [(2, 0), (1, 0), (0, 0)]  # 뱀의 위치, (2,0이 머리)
+        self.positions = [(2, size[1]//40), (1, size[1]//40), (0, size[1]//40)]  # 뱀의 위치, (2,0이 머리)
         self.direction = ''
 
     # draw() draws snake with right positions.
@@ -61,6 +63,8 @@ class Snake:
 
     # grow() append array element to @snake.positions for representing growing of snake.
     def grow(self):
+        global score
+        score += 1
         tail_position = self.positions[-1]
         x, y = tail_position
         if self.direction == 'N':
@@ -75,7 +79,7 @@ class Snake:
 # Apple represents Apple objects that game's goal.
 class Apple:
     # __init__() sets first position of apple.
-    def __init__(self, position=(5, 5)):
+    def __init__(self, position=(size[0]//40, size[1]//40)):
         self.position = position
 
     # draw() draws and sets next position of apple.
@@ -91,6 +95,7 @@ def draw_block(screen, cloor, position):
 def runGame():
     global done, last_moved_time, score
 
+    end = True
     # initialize snake and apple.
     snake = Snake()
     apple = Apple()
@@ -99,8 +104,11 @@ def runGame():
     while not done:
         clock.tick(10)
         screen.fill(WHITE)
+        font = pygame.font.Font(None, 30)
+        text = font.render("Score : " + '{}'.format(score), True, (28, 0, 0))
+        screen.blit(text, (10, 10))
 
-        # end of game.
+        # game process.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
@@ -122,9 +130,9 @@ def runGame():
             done = True
 
         # snake head out of map.
-        if snake.positions[0][0] > 20 or snake.positions[0][0] < 0:
+        if snake.positions[0][0] > size[0]//20-1 or snake.positions[0][0] < 0:
             done = True
-        if snake.positions[0][1] > 20 or snake.positions[0][1] < 0:
+        if snake.positions[0][1] > size[1]//20-1 or snake.positions[0][1] < 0:
             done = True
 
         # display update
@@ -132,7 +140,18 @@ def runGame():
         apple.draw()
         pygame.display.update()
 
+    font = pygame.font.Font(None, 30)
+    end_text = font.render("Press esc to exit", True, (28, 0, 0))
+    screen.blit(end_text, (size[0] // 2 - 73, size[1] // 2))
+    pygame.display.update()
 
+    while end:
+        time.sleep(1)
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    end = False
+                    break
 
 runGame()
 pygame.quit()
