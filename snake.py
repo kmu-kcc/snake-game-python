@@ -1,5 +1,4 @@
 import time
-
 import pygame
 import random
 from datetime import datetime
@@ -40,7 +39,7 @@ KEY_DIRECTION = {
 class Snake:
     # __init__ sets first position of snake.
     def __init__(self):
-        self.positions = [(2, size[1]//40), (1, size[1]//40), (0, size[1]//40)]  # 뱀의 위치, (2,0이 머리)
+        self.positions = [(2, size[1]//40), (1, size[1]//40), (0, size[1]//40)]
         self.direction = ''
 
     # draw() draws snake with right positions.
@@ -91,12 +90,30 @@ def draw_block(screen, cloor, position):
     block = pygame.Rect((position[0]*20, position[1]*20), (20, 20))
     pygame.draw.rect(screen, cloor, block)
 
-# runGame
+# end_game is condition of game over.
+def end_game():
+    global score, done
+    end = False
+    font = pygame.font.Font(None, 30)
+    end_text = font.render("Press ESC to exit or R to restart", True, (28, 0, 0))
+    screen.blit(end_text, (size[0] // 2 - 150, size[1] // 2))
+    pygame.display.update()
+
+    while not end:
+        time.sleep(0.2)
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                if event.key == pygame.K_r:
+                    score = 0
+                    runGame()
+
+# runGame is main function of game.
 def runGame():
     global done, last_moved_time, score
 
-    end = True
-    # initialize snake and apple.
+    # visualize snake and apple.
     snake = Snake()
     apple = Apple()
 
@@ -111,7 +128,7 @@ def runGame():
         # game process.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                done = True
+                break
             if event.type == pygame.KEYDOWN:
                 if event.key in KEY_DIRECTION:
                     snake.direction = KEY_DIRECTION[event.key]
@@ -123,35 +140,28 @@ def runGame():
         # getting score.
         if snake.positions[0] == apple.position:
             snake.grow()
-            apple.position = (random.randint(0, 19), random.randint(0, 19))
+            tmp = apple.position
+            while apple.position == tmp or apple.position in snake.positions:
+                apple.position = (random.randint(0, 19), random.randint(0, 19))
 
         # crash snake head with body
         if snake.positions[0] in snake.positions[1:]:
-            done = True
+            end_game()
+            break
 
         # snake head out of map.
         if snake.positions[0][0] > size[0]//20-1 or snake.positions[0][0] < 0:
-            done = True
+            end_game()
+            break
         if snake.positions[0][1] > size[1]//20-1 or snake.positions[0][1] < 0:
-            done = True
+            end_game()
+            break
 
-        # display update
+        # display update.
         snake.draw()
         apple.draw()
         pygame.display.update()
 
-    font = pygame.font.Font(None, 30)
-    end_text = font.render("Press esc to exit", True, (28, 0, 0))
-    screen.blit(end_text, (size[0] // 2 - 73, size[1] // 2))
-    pygame.display.update()
-
-    while end:
-        time.sleep(1)
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    end = False
-                    break
 
 runGame()
 pygame.quit()
