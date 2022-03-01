@@ -10,6 +10,8 @@ pygame.init()
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+SnakeBody = (80, 80, 255)
 
 # setting size of map.
 size = [400, 400]
@@ -45,7 +47,9 @@ class Snake:
     # draw() draws snake with right positions.
     def draw(self):
         for position in self.positions:
-            draw_block(screen, GREEN, position)
+            draw_block(screen, SnakeBody, position)
+            if position == self.positions[0]:
+                draw_block(screen, BLUE, position)
 
     # move() moves snake to input keyboard direction.
     def move(self):
