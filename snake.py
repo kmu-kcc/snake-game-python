@@ -14,7 +14,7 @@ BLUE = (0, 0, 255)
 SnakeBody = (80, 80, 255)
 
 # setting size of map.
-size = [400, 400]
+size = [800, 400]
 screen = pygame.display.set_mode(size)
 
 # score of games.
@@ -113,7 +113,8 @@ def runGame():
         # game process.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                break
+                pygame.quit()
+                return
             if event.type == pygame.KEYDOWN:
                 if event.key in KEY_DIRECTION:
                     snake.direction = KEY_DIRECTION[event.key]
@@ -125,9 +126,9 @@ def runGame():
         # getting score.
         if snake.positions[0] == apple.position:
             snake.grow()
-            tmp = apple.position
-            while apple.position == tmp or apple.position in snake.positions:
-                apple.position = (random.randint(0, 19), random.randint(0, 19))
+            while apple.position in snake.positions:
+                apple.position = (random.randint(0, size[0]//20 - 1), random.randint(0, size[1]//20 - 1))
+                print(apple.position)
 
         # crash snake head with body
         if snake.positions[0] in snake.positions[1:]:
@@ -143,7 +144,9 @@ def runGame():
         apple.draw()
         pygame.display.update()
 
+# First Game Start
 runGame()
+
 while True:
     font = pygame.font.Font(None, 30)
     end_text = font.render("Press ESC to exit or R to restart", True, (28, 0, 0))
@@ -153,6 +156,9 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+
+        # Press R: Restart
+        # Press ESC: End game
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 score = 0
