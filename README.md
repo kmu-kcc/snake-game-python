@@ -24,3 +24,5 @@ $ python3 snake.py
 ```
 ## ScreenShot
 
+![snakegame1](https://user-images.githubusercontent.com/84405002/156357022-71c43c04-675a-4648-8749-aa0be2c4ac02.png)
+![snakegame2](https://user-images.githubusercontent.com/84405002/156357025-26886c3a-4b25-42a0-af4f-f64c292c238b.png)
