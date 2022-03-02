@@ -94,25 +94,6 @@ def draw_block(screen, cloor, position):
     block = pygame.Rect((position[0]*20, position[1]*20), (20, 20))
     pygame.draw.rect(screen, cloor, block)
 
-# end_game is condition of game over.
-def end_game():
-    global score, done
-    end = False
-    font = pygame.font.Font(None, 30)
-    end_text = font.render("Press ESC to exit or R to restart", True, (28, 0, 0))
-    screen.blit(end_text, (size[0] // 2 - 150, size[1] // 2))
-    pygame.display.update()
-
-    while not end:
-        time.sleep(0.2)
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                if event.key == pygame.K_r:
-                    score = 0
-                    runGame()
-
 # runGame is main function of game.
 def runGame():
     global done, last_moved_time, score
@@ -150,22 +131,31 @@ def runGame():
 
         # crash snake head with body
         if snake.positions[0] in snake.positions[1:]:
-            end_game()
-            break
-
+            return
         # snake head out of map.
         if snake.positions[0][0] > size[0]//20-1 or snake.positions[0][0] < 0:
-            end_game()
-            break
+            return
         if snake.positions[0][1] > size[1]//20-1 or snake.positions[0][1] < 0:
-            end_game()
-            break
+            return
 
         # display update.
         snake.draw()
         apple.draw()
         pygame.display.update()
 
-
 runGame()
-pygame.quit()
+while True:
+    font = pygame.font.Font(None, 30)
+    end_text = font.render("Press ESC to exit or R to restart", True, (28, 0, 0))
+    screen.blit(end_text, (size[0] // 2 - 150, size[1] // 2))
+    pygame.display.update()
+    time.sleep(0.2)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                score = 0
+                runGame()
+            elif event.key == pygame.K_ESCAPE:
+                pygame.quit()
