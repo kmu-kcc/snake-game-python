@@ -10,16 +10,16 @@
 ## Installation
 1. Download and install Python 3.x. 
 
-2. Enter the following commands in the terminal to install the pygame library.
-
-```shell
-$ pip3 install -r requirements.txt
-```
-
-3. Fork or clone this repository.
+2. Clone this repository.
 
 ```shell
 $ git clone https://github.com/kmu-kcc/snake-game-python.git
+```
+
+3. Enter the following commands in the terminal to install the pygame package.
+
+```shell
+$ pip3 install -r requirements.txt
 ```
 
 4. Run the file in the terminal.
