@@ -1,4 +1,4 @@
-from typing import Union
+from typing import List, Tuple
 import time
 import pygame
 import random
@@ -20,7 +20,8 @@ SCREEN_SIZE = [400, 400]
 score = 0
 
 # done for ending of game.
-done = False
+playing = True
+exit_request = False
 
 # time setting.
 #
@@ -40,8 +41,15 @@ KEY_DIRECTION = {
 
 # Snake represents snake object that playable character.
 class Snake:
+
+    positions: List[Tuple]
+    direction: str
+
     # __init__ sets first position of snake.
     def __init__(self):
+        self.init_position()
+        
+    def init_position(self):
         self.positions = [(2, SCREEN_SIZE[1] // 40), (1, SCREEN_SIZE[1] // 40), (0, SCREEN_SIZE[1] // 40)]
         self.direction = ''
 
@@ -97,13 +105,24 @@ class Snake:
 
 # Apple represents Apple objects that game's goal.
 class Apple:
-    # __init__() sets first position of apple.
-    def __init__(self, position=(SCREEN_SIZE[0] // 40, SCREEN_SIZE[1] // 40)):
-        self.position = position
 
+    position: Tuple
+    
+    # __init__() sets first position of apple.
+    def __init__(self):
+        self.init_position()
+
+    def init_position(self):
+        self.position = (SCREEN_SIZE[0] // 40, SCREEN_SIZE[1] // 40)
+        
     # draw() draws and sets next position of apple.
     def draw(self):
         draw_block(screen, RED, self.position)
+
+
+# define snake and apple. initialize later.
+apple: Apple
+snake: Snake
 
 
 # draw_block sets the frontier of blocks.
@@ -112,83 +131,107 @@ def draw_block(screen, color, position):
     pygame.draw.rect(screen, color, block)
 
 
-# run_game is main function of game.
-def run_game():
-    global done, last_moved_time, score, font
+def handle_event():
+    global playing, exit_request
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            exit_request = True
+            return
+        if event.type == pygame.KEYDOWN:
+            if playing and event.key in KEY_DIRECTION:
+                snake.change_direction(event.key)
+            elif not playing:
+                if event.key == pygame.K_r:
+                    reset_game()
+                elif event.key == pygame.K_ESCAPE:
+                    exit_request = True
+                    return
 
-    # visualize snake and apple.
-    snake = Snake()
-    apple = Apple()
 
-    # for playing game.
-    while not done:
-        clock.tick(10)
-        screen.fill(WHITE)
-        score_text = font.render(f'Score : {score}', True, FONT_COLOR)
-        screen.blit(score_text, (10, 10))
+def draw_common():
+    screen.fill(WHITE)
+    score_text = font.render(f'Score : {score}', True, FONT_COLOR)
+    screen.blit(score_text, (10, 10))
 
-        # game process.
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
-            if event.type == pygame.KEYDOWN:
-                if event.key in KEY_DIRECTION:
-                    snake.change_direction(event.key)
 
-        # for setting game speed change seconds=0.5.
-        if timedelta(seconds=0.5) <= datetime.now() - last_moved_time:
-            snake.move()
+def game_scene():
+    global playing
 
-        # getting score.
-        if snake.positions[0] == apple.position:
-            snake.grow()
-            while apple.position in snake.positions:
-                apple.position = (random.randint(0, SCREEN_SIZE[0] // 20 - 1), random.randint(0, SCREEN_SIZE[1 ] // 20 - 1))
+    clock.tick(10)
 
-        # crash snake head with body
-        if snake.positions[0] in snake.positions[1:]:
-            break
-        # snake head out of map.
-        if snake.positions[0][0] > SCREEN_SIZE[0] // 20 - 1 or snake.positions[0][0] < 0:
-            break
-        if snake.positions[0][1] > SCREEN_SIZE[1] // 20 - 1 or snake.positions[0][1] < 0:
-            break
+    # for setting game speed change seconds=0.5.
+    if timedelta(seconds=0.5) <= datetime.now() - last_moved_time:
+        snake.move()
 
-        # display update.
-        snake.draw()
-        apple.draw()
-        pygame.display.update()
-    end_scene()
+    # getting score.
+    if snake.positions[0] == apple.position:
+        snake.grow()
+        while apple.position in snake.positions:
+            apple.position = (random.randint(0, SCREEN_SIZE[0] // 20 - 1), random.randint(0, SCREEN_SIZE[1] // 20 - 1))
+
+    # crash snake head with body
+    if snake.positions[0] in snake.positions[1:]:
+        playing = False
+    # snake head out of map.
+    if snake.positions[0][0] > SCREEN_SIZE[0] // 20 - 1 or snake.positions[0][0] < 0:
+        playing = False
+    if snake.positions[0][1] > SCREEN_SIZE[1] // 20 - 1 or snake.positions[0][1] < 0:
+        playing = False
+
+    # display update.
+    snake.draw()
+    apple.draw()
+    pygame.display.update()
 
 
 def end_scene():
-    global score
-    print('end game scene')
-    while True:
-        game_end_text = font.render('Press ESC to exit or R to restart', True, FONT_COLOR)
-        screen.blit(game_end_text, (SCREEN_SIZE[0] // 2 - 150, SCREEN_SIZE[1] // 2))
-        pygame.display.update()
-        time.sleep(0.2)
-        for event in pygame.event.get():
-            # Press ESC: End game
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
-            # Press R: Restart
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-                    score = 0
-                    run_game()
-                elif event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    return
-    
+    global exit_request
+
+    game_end_text = font.render('Press ESC to exit or R to restart', True, FONT_COLOR)
+    screen.blit(game_end_text, (SCREEN_SIZE[0] // 2 - 150, SCREEN_SIZE[1] // 2))
+    pygame.display.update()
+    time.sleep(0.2)
+
+
+def reset_game():
+    global score, playing
+
+    playing = True    
+    score = 0
+    apple.init_position()
+    snake.init_position()
+
+
+# run_game is main function of game.
+def run_game():
+    global playing, last_moved_time, score, font, apple, snake
+
+    # infinite loop to prevent game finishing
+    while not exit_request:
+        handle_event()
+        if exit_request:
+            pygame.quit()
+            break
+
+        draw_common()
+        if playing:
+            # show while playing game
+            game_scene()
+        else:
+            # show when game end
+            end_scene()
+
 
 if __name__ == '__main__':
+    # initialize pygame
     pygame.init()
+    # load font to draw text
     font = pygame.font.Font(None, 30)
+    # adjust screen size
     screen = pygame.display.set_mode(SCREEN_SIZE)
+    # initialize game object
+    apple = Apple()
+    snake = Snake()
 
     # start game
     run_game()
