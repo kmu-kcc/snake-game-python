@@ -90,9 +90,9 @@ class Apple:
         draw_block(screen, RED, self.position)
 
 # draw_block sets the frontier of blocks.
-def draw_block(screen, cloor, position):
+def draw_block(screen, color, position):
     block = pygame.Rect((position[0]*20, position[1]*20), (20, 20))
-    pygame.draw.rect(screen, cloor, block)
+    pygame.draw.rect(screen, color, block)
 
 # runGame is main function of game.
 def runGame():
@@ -154,7 +154,7 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-            
+
         # Press R: Restart
         # Press ESC: End game
         elif event.type == pygame.KEYDOWN:
