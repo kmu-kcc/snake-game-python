@@ -3,11 +3,13 @@
 
 - This project is study reference of KMUniverse club KCC.
 
-## Requirements
+## Prerequisites
+
 - Python 3.x
 - pygame
 
-## Installation
+## Getting Started
+
 1. Download and install Python 3.x. 
 
 2. Clone this repository.
