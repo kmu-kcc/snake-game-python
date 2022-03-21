@@ -1,3 +1,4 @@
+from typing import Union
 import time
 import pygame
 import random
@@ -13,8 +14,7 @@ SnakeBody = (80, 80, 255)
 FONT_COLOR = (28, 0, 0)
 
 # setting size of map.
-size = [400, 400]
-screen = pygame.display.set_mode(size)
+SCREEN_SIZE = [400, 400]
 
 # score of games.
 score = 0
@@ -42,7 +42,7 @@ KEY_DIRECTION = {
 class Snake:
     # __init__ sets first position of snake.
     def __init__(self):
-        self.positions = [(2, size[1] // 40), (1, size[1] // 40), (0, size[1] // 40)]
+        self.positions = [(2, SCREEN_SIZE[1] // 40), (1, SCREEN_SIZE[1] // 40), (0, SCREEN_SIZE[1] // 40)]
         self.direction = ''
 
     # draw() draws snake with right positions.
@@ -82,8 +82,6 @@ class Snake:
     
     def change_direction(self, key_code):
         direction = KEY_DIRECTION[key_code]
-        if direction is None:
-            return
         if self.direction == 'E' and direction == 'W':
             return
         if self.direction == 'W' and direction == 'E':
@@ -100,7 +98,7 @@ class Snake:
 # Apple represents Apple objects that game's goal.
 class Apple:
     # __init__() sets first position of apple.
-    def __init__(self, position=(size[0] // 40, size[1] // 40)):
+    def __init__(self, position=(SCREEN_SIZE[0] // 40, SCREEN_SIZE[1] // 40)):
         self.position = position
 
     # draw() draws and sets next position of apple.
@@ -146,43 +144,51 @@ def run_game():
         if snake.positions[0] == apple.position:
             snake.grow()
             while apple.position in snake.positions:
-                apple.position = (random.randint(0, size[0] // 20 - 1), random.randint(0, size[1 ] // 20 - 1))
+                apple.position = (random.randint(0, SCREEN_SIZE[0] // 20 - 1), random.randint(0, SCREEN_SIZE[1 ] // 20 - 1))
 
         # crash snake head with body
         if snake.positions[0] in snake.positions[1:]:
-            return
+            break
         # snake head out of map.
-        if snake.positions[0][0] > size[0] // 20-1 or snake.positions[0][0] < 0:
-            return
-        if snake.positions[0][1] > size[1] // 20-1 or snake.positions[0][1] < 0:
-            return
+        if snake.positions[0][0] > SCREEN_SIZE[0] // 20 - 1 or snake.positions[0][0] < 0:
+            break
+        if snake.positions[0][1] > SCREEN_SIZE[1] // 20 - 1 or snake.positions[0][1] < 0:
+            break
 
         # display update.
         snake.draw()
         apple.draw()
         pygame.display.update()
+    end_scene()
 
 
-if __name__ == '__main__':
-    pygame.init()
-    font = pygame.font.Font(None, 30)
-
-    # First Game Start
-    run_game()
+def end_scene():
+    global score
+    print('end game scene')
     while True:
         game_end_text = font.render('Press ESC to exit or R to restart', True, FONT_COLOR)
-        screen.blit(game_end_text, (size[0] // 2 - 150, size[1] // 2))
+        screen.blit(game_end_text, (SCREEN_SIZE[0] // 2 - 150, SCREEN_SIZE[1] // 2))
         pygame.display.update()
         time.sleep(0.2)
         for event in pygame.event.get():
+            # Press ESC: End game
             if event.type == pygame.QUIT:
                 pygame.quit()
-    
+                return
             # Press R: Restart
-            # Press ESC: End game
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     score = 0
                     run_game()
                 elif event.key == pygame.K_ESCAPE:
                     pygame.quit()
+                    return
+    
+
+if __name__ == '__main__':
+    pygame.init()
+    font = pygame.font.Font(None, 30)
+    screen = pygame.display.set_mode(SCREEN_SIZE)
+
+    # start game
+    run_game()
