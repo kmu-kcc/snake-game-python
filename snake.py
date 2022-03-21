@@ -10,6 +10,7 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 SnakeBody = (80, 80, 255)
+FONT_COLOR = (28, 0, 0)
 
 # setting size of map.
 size = [400, 400]
@@ -26,6 +27,7 @@ done = False
 # for game speed setting line 105.
 clock = pygame.time.Clock()
 last_moved_time = datetime.now()
+font: pygame.font.Font
 
 # keyboard constant setting.
 KEY_DIRECTION = {
@@ -77,6 +79,22 @@ class Snake:
             self.positions.append((x - 1, y))
         elif self.direction == 'C':
             self.positions.append((x + 1, y))
+    
+    def change_direction(self, key_code):
+        direction = KEY_DIRECTION[key_code]
+        if direction is None:
+            return
+        if self.direction == 'E' and direction == 'W':
+            return
+        if self.direction == 'W' and direction == 'E':
+            return
+        if self.direction == 'N' and direction == 'S':
+            return
+        if self.direction == 'S' and direction == 'N':
+            return
+        if self.direction == '' and direction == 'W':
+            return
+        self.direction = direction
 
 
 # Apple represents Apple objects that game's goal.
@@ -96,9 +114,9 @@ def draw_block(screen, color, position):
     pygame.draw.rect(screen, color, block)
 
 
-# runGame is main function of game.
+# run_game is main function of game.
 def run_game():
-    global done, last_moved_time, score
+    global done, last_moved_time, score, font
 
     # visualize snake and apple.
     snake = Snake()
@@ -108,9 +126,8 @@ def run_game():
     while not done:
         clock.tick(10)
         screen.fill(WHITE)
-        font = pygame.font.Font(None, 30)
-        text = font.render("Score : " + '{}'.format(score), True, (28, 0, 0))
-        screen.blit(text, (10, 10))
+        score_text = font.render(f'Score : {score}', True, FONT_COLOR)
+        screen.blit(score_text, (10, 10))
 
         # game process.
         for event in pygame.event.get():
@@ -119,7 +136,7 @@ def run_game():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key in KEY_DIRECTION:
-                    snake.direction = KEY_DIRECTION[event.key]
+                    snake.change_direction(event.key)
 
         # for setting game speed change seconds=0.5.
         if timedelta(seconds=0.5) <= datetime.now() - last_moved_time:
@@ -148,12 +165,13 @@ def run_game():
 
 if __name__ == '__main__':
     pygame.init()
+    font = pygame.font.Font(None, 30)
+
     # First Game Start
     run_game()
     while True:
-        font = pygame.font.Font(None, 30)
-        end_text = font.render("Press ESC to exit or R to restart", True, (28, 0, 0))
-        screen.blit(end_text, (size[0] // 2 - 150, size[1] // 2))
+        game_end_text = font.render('Press ESC to exit or R to restart', True, FONT_COLOR)
+        screen.blit(game_end_text, (size[0] // 2 - 150, size[1] // 2))
         pygame.display.update()
         time.sleep(0.2)
         for event in pygame.event.get():
