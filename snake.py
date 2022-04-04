@@ -229,6 +229,7 @@ if __name__ == '__main__':
     font = pygame.font.Font(None, 30)
     # adjust screen size
     screen = pygame.display.set_mode(SCREEN_SIZE)
+    pygame.display.set_caption('Snake Game')
     # initialize game object
     apple = Apple()
     snake = Snake()
